@@ -1111,47 +1111,58 @@ export default function InternalAudit() {
 
   const shared = { setView, session, isGlobalOwner: isAdmin, sites, users, plans, findings }
 
-  const TABS = [
-    ['scheduler', 'Scheduler', 'fas fa-calendar-alt'],
-    ['auditor', 'Auditor Workplace', 'fas fa-clipboard-list'],
-    ['auditee', 'Auditee Workplace', 'fas fa-user-edit'],
-    ['reports', 'Reports', 'fas fa-file-contract'],
-    ['calendar', 'Calendar', 'fas fa-calendar-days'],
-    ['dashboard', 'Dashboard', 'fas fa-chart-pie'],
+  const TILES = [
+    ['scheduler', 'Scheduler', 'fas fa-calendar-alt', 'text-sky-500', 'border-t-sky-500', 'Plan annual audits & assign auditors'],
+    ['auditor', 'Auditor Workplace', 'fas fa-clipboard-list', 'text-emerald-500', 'border-t-emerald-500', 'Execute audits & record findings'],
+    ['auditee', 'Auditee Workplace', 'fas fa-user-edit', 'text-amber-500', 'border-t-amber-500', 'Submit corrections & evidence'],
+    ['reports', 'Reports', 'fas fa-file-contract', 'text-purple-500', 'border-t-purple-500', 'Verify closure & generate PDFs'],
+    ['calendar', 'Calendar', 'fas fa-calendar-days', 'text-indigo-500', 'border-t-indigo-500', 'Visual lifecycle timeline'],
+    ['dashboard', 'Dashboard', 'fas fa-chart-pie', 'text-orange-500', 'border-t-orange-500', 'Analytics & trends'],
   ]
-  const active = TABS.some(([k]) => k === view) ? view : 'scheduler'
 
+  const moduleEl = {
+    scheduler: <AuditScheduler {...shared} />,
+    auditor: <AuditorWorkplace {...shared} />,
+    auditee: <AuditeeWorkplace {...shared} />,
+    reports: <AuditReports {...shared} />,
+    calendar: <AuditCalendar {...shared} />,
+    dashboard: <AuditDashboard {...shared} />,
+  }[view]
+
+  // A module is open — show it with a "back to hub" control.
+  if (moduleEl) {
+    return (
+      <div className="animate-fade-in">
+        <button
+          onClick={() => setView('hub')}
+          className="mb-4 inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-200 print:hidden"
+        >
+          <i className="fas fa-arrow-left" /> Back to Hub
+        </button>
+        {moduleEl}
+      </div>
+    )
+  }
+
+  // Landing hub — six module tiles.
   return (
     <div className="animate-fade-in">
-      <div className="mb-5 print:hidden">
-        <h1 className="text-2xl font-extrabold tracking-tight text-ink-800"><i className="fas fa-clipboard-check mr-2 text-brand-500" /> Internal Audit</h1>
+      <div className="mb-8">
+        <h1 className="text-2xl font-extrabold tracking-tight text-ink-800"><i className="fas fa-clipboard-check mr-2 text-brand-500" /> Internal Audit Hub</h1>
         <p className="mt-1 text-sm text-slate-500">ISO 45001 audit lifecycle — plan, execute, correct, verify and report.</p>
       </div>
-
-      <div className="mb-6 flex flex-wrap gap-1 border-b border-slate-200 print:hidden">
-        {TABS.map(([key, label, icon]) => (
-          <button
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {TILES.map(([key, title, icon, color, topBorder, desc]) => (
+          <div
             key={key}
             onClick={() => setView(key)}
-            className={`-mb-px flex items-center gap-2 rounded-t-xl border-b-2 px-4 py-2.5 text-sm font-bold transition ${
-              active === key
-                ? 'border-brand-500 text-brand-600'
-                : 'border-transparent text-slate-500 hover:text-ink-800'
-            }`}
+            className={`${panel} group flex h-52 cursor-pointer flex-col items-center justify-center border-t-4 ${topBorder} p-6 text-center transition hover:-translate-y-1 hover:shadow-md`}
           >
-            <i className={icon} />
-            <span className="hidden sm:inline">{label}</span>
-          </button>
+            <div className={`mb-5 text-5xl ${color} transition group-hover:scale-110`}><i className={icon} /></div>
+            <h3 className="mb-1 text-xl font-bold text-ink-800">{title}</h3>
+            <p className="px-4 text-xs text-slate-400">{desc}</p>
+          </div>
         ))}
-      </div>
-
-      <div>
-        {active === 'scheduler' && <AuditScheduler {...shared} />}
-        {active === 'auditor' && <AuditorWorkplace {...shared} />}
-        {active === 'auditee' && <AuditeeWorkplace {...shared} />}
-        {active === 'reports' && <AuditReports {...shared} />}
-        {active === 'calendar' && <AuditCalendar {...shared} />}
-        {active === 'dashboard' && <AuditDashboard {...shared} />}
       </div>
     </div>
   )
