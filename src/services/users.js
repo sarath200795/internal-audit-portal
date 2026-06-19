@@ -1,7 +1,6 @@
 import {
   collection,
   onSnapshot,
-  orderBy,
   query,
   updateDoc,
   doc,
@@ -13,17 +12,24 @@ import {
 } from 'firebase/auth'
 import { auth, db } from '../lib/firebase'
 
+const createdMs = (u) => {
+  const c = u?.createdAt
+  if (!c) return 0
+  if (typeof c.toMillis === 'function') return c.toMillis()
+  const t = new Date(c).getTime()
+  return Number.isNaN(t) ? 0 : t
+}
+
 /**
  * Subscribe to all users within an organization (admin view).
+ * Sorted client-side by creation time so the query needs no composite index.
  */
 export function subscribeOrgUsers(orgId, callback) {
-  const q = query(
-    collection(db, 'users'),
-    where('orgId', '==', orgId),
-    orderBy('createdAt', 'desc'),
-  )
+  const q = query(collection(db, 'users'), where('orgId', '==', orgId))
   return onSnapshot(q, (snap) => {
-    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+    const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+    rows.sort((a, b) => createdMs(b) - createdMs(a))
+    callback(rows)
   })
 }
 
