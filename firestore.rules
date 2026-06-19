@@ -1,0 +1,87 @@
+rules_version = '2';
+
+// Security rules for the Internal Audit — OHSMS Portal.
+// Multi-tenant, org-scoped: members only ever touch their own organization's
+// data, and only an admin can approve teammates or change roles.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // The signed-in user's own profile document.
+    function myProfile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isApprovedMemberOf(orgId) {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && myProfile().orgId == orgId
+        && myProfile().status == 'approved';
+    }
+
+    function isAdminOf(orgId) {
+      return isApprovedMemberOf(orgId) && myProfile().role == 'admin';
+    }
+
+    // Organizations: list is public so new teammates can pick one on signup.
+    match /organizations/{orgId} {
+      allow read: if true;
+      // A signed-in user may create an org only if they are its admin.
+      allow create: if isSignedIn()
+        && request.resource.data.adminUid == request.auth.uid;
+      allow update, delete: if isAdminOf(orgId);
+
+      // Org-scoped collections — approved members have full access.
+      match /sites/{docId} {
+        allow read, write: if isApprovedMemberOf(orgId);
+      }
+      match /audits/{docId} {
+        allow read, write: if isApprovedMemberOf(orgId);
+      }
+      match /findings/{docId} {
+        allow read, write: if isApprovedMemberOf(orgId);
+      }
+      match /capas/{docId} {
+        allow read, write: if isApprovedMemberOf(orgId);
+      }
+    }
+
+    // User profiles.
+    match /users/{uid} {
+      // Read your own profile, or any profile in your organization.
+      allow read: if isSignedIn()
+        && (request.auth.uid == uid
+            || resource.data.orgId == myProfile().orgId);
+
+      // Create your own profile. You may join as a pending member, or — if you
+      // just created the organization — as its approved admin.
+      allow create: if isSignedIn()
+        && request.auth.uid == uid
+        && (
+          request.resource.data.status == 'pending'
+          || (
+            request.resource.data.status == 'approved'
+            && request.resource.data.role == 'admin'
+            && get(/databases/$(database)/documents/organizations/$(request.resource.data.orgId)).data.adminUid == uid
+          )
+        );
+
+      // Update your own name (without escalating role/status), or — as an
+      // admin of the same org — approve members and change roles.
+      allow update: if isSignedIn() && (
+        (
+          request.auth.uid == uid
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.status == resource.data.status
+          && request.resource.data.orgId == resource.data.orgId
+        )
+        || isAdminOf(resource.data.orgId)
+      );
+
+      allow delete: if isAdminOf(resource.data.orgId);
+    }
+  }
+}
