@@ -22,8 +22,7 @@ const Cookies = lazy(() => import('./pages/legal/Cookies'))
 
 // App
 const Dashboard = lazy(() => import('./pages/app/Dashboard'))
-const Audits = lazy(() => import('./pages/app/Audits'))
-const AuditDetail = lazy(() => import('./pages/app/AuditDetail'))
+const InternalAudit = lazy(() => import('./pages/app/InternalAudit'))
 const Findings = lazy(() => import('./pages/app/Findings'))
 const FindingDetail = lazy(() => import('./pages/app/FindingDetail'))
 const Capa = lazy(() => import('./pages/app/Capa'))
@@ -71,8 +70,7 @@ export default function App() {
         }
       >
         <Route path="/" element={<Dashboard />} />
-        <Route path="/audits" element={<Audits />} />
-        <Route path="/audits/:id" element={<AuditDetail />} />
+        <Route path="/audits" element={<InternalAudit />} />
         <Route path="/findings" element={<Findings />} />
         <Route path="/findings/:id" element={<FindingDetail />} />
         <Route path="/capa" element={<Capa />} />

@@ -47,6 +47,13 @@ service cloud.firestore {
       match /capas/{docId} {
         allow read, write: if isApprovedMemberOf(orgId);
       }
+      // Internal Audit module (ISO 45001 scheduler / findings / CAPA workflow).
+      match /auditPlans/{docId} {
+        allow read, write: if isApprovedMemberOf(orgId);
+      }
+      match /auditFindings/{docId} {
+        allow read, write: if isApprovedMemberOf(orgId);
+      }
     }
 
     // User profiles.
