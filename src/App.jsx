@@ -21,11 +21,7 @@ const DataRetention = lazy(() => import('./pages/legal/DataRetention'))
 const Cookies = lazy(() => import('./pages/legal/Cookies'))
 
 // App
-const Dashboard = lazy(() => import('./pages/app/Dashboard'))
 const InternalAudit = lazy(() => import('./pages/app/InternalAudit'))
-const Findings = lazy(() => import('./pages/app/Findings'))
-const FindingDetail = lazy(() => import('./pages/app/FindingDetail'))
-const Capa = lazy(() => import('./pages/app/Capa'))
 const Sites = lazy(() => import('./pages/app/Sites'))
 const Admin = lazy(() => import('./pages/app/Admin'))
 const Profile = lazy(() => import('./pages/app/Profile'))
@@ -69,11 +65,7 @@ export default function App() {
           </ProtectedRoute>
         }
       >
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/audits" element={<InternalAudit />} />
-        <Route path="/findings" element={<Findings />} />
-        <Route path="/findings/:id" element={<FindingDetail />} />
-        <Route path="/capa" element={<Capa />} />
+        <Route path="/" element={<InternalAudit />} />
         <Route path="/sites" element={<Sites />} />
         <Route
           path="/admin"

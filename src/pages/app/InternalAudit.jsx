@@ -353,7 +353,6 @@ const AuditorWorkplace = ({ setView, session, isGlobalOwner, users, plans, findi
           <h2 className="text-2xl font-extrabold text-ink-800"><i className="fas fa-clipboard-list mr-2 text-emerald-500" /> Auditor Workplace</h2>
           <p className="text-sm text-slate-500">Execute your assigned audits and raise findings.</p>
         </div>
-        <button onClick={() => setView('hub')} className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200"><i className="fas fa-times text-xl" /></button>
       </div>
 
       <div className="print:hidden">
@@ -548,7 +547,6 @@ const AuditeeWorkplace = ({ setView, session, users, findings }) => {
           <h2 className="text-2xl font-extrabold text-ink-800"><i className="fas fa-user-edit mr-2 text-amber-500" /> Auditee Workplace</h2>
           <p className="text-sm text-slate-500">Respond to findings and submit corrective actions.</p>
         </div>
-        <button onClick={() => setView('hub')} className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200"><i className="fas fa-times text-xl" /></button>
       </div>
 
       <div className="flex flex-col gap-6 lg:flex-row">
@@ -712,7 +710,6 @@ const AuditReports = ({ setView, plans, findings }) => {
           <h2 className="text-2xl font-extrabold text-ink-800"><i className="fas fa-file-contract mr-2 text-purple-500" /> Audit Reports & Schedules</h2>
           <p className="text-sm text-slate-500">Access and generate PDFs for all audits.</p>
         </div>
-        <button onClick={() => setView('hub')} className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200"><i className="fas fa-times text-xl" /></button>
       </div>
 
       <div className="space-y-6 print:hidden">
@@ -815,7 +812,6 @@ const AuditDashboard = ({ setView, findings }) => {
           <h2 className="text-2xl font-extrabold text-ink-800"><i className="fas fa-chart-pie mr-2 text-orange-500" /> Audit Dashboard</h2>
           <p className="text-sm text-slate-500">Real-time status of all organizational audits.</p>
         </div>
-        <button onClick={() => setView('hub')} className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200"><i className="fas fa-times text-xl" /></button>
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-5 md:grid-cols-4">
@@ -909,7 +905,6 @@ const AuditCalendar = ({ setView, sites, plans, findings }) => {
           <h2 className="text-2xl font-extrabold text-ink-800"><i className="fas fa-calendar-days mr-2 text-indigo-500" /> Audit Calendar</h2>
           <p className="text-sm text-slate-500">Visual timeline of audit schedules and milestones.</p>
         </div>
-        <button onClick={() => setView('hub')} className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200"><i className="fas fa-times text-xl" /></button>
       </div>
 
       <div className={`${panel} mb-5 flex flex-wrap items-center justify-between gap-4 p-5`}>
@@ -1116,36 +1111,47 @@ export default function InternalAudit() {
 
   const shared = { setView, session, isGlobalOwner: isAdmin, sites, users, plans, findings }
 
-  if (view === 'scheduler') return <AuditScheduler {...shared} />
-  if (view === 'auditor') return <AuditorWorkplace {...shared} />
-  if (view === 'auditee') return <AuditeeWorkplace {...shared} />
-  if (view === 'reports') return <AuditReports {...shared} />
-  if (view === 'dashboard') return <AuditDashboard {...shared} />
-  if (view === 'calendar') return <AuditCalendar {...shared} />
-
-  const modules = [
-    ['scheduler', 'fas fa-calendar-alt', 'text-sky-500', 'Audit Scheduler', 'Plan annual audits & assign auditors'],
-    ['auditor', 'fas fa-clipboard-list', 'text-emerald-500', 'Auditor Workplace', 'Execute audits & record findings'],
-    ['auditee', 'fas fa-user-edit', 'text-amber-500', 'Auditee Workplace', 'Submit corrections & evidence'],
-    ['reports', 'fas fa-file-contract', 'text-purple-500', 'Audit Reports', 'Verify closure & generate PDFs'],
-    ['calendar', 'fas fa-calendar-days', 'text-indigo-500', 'Audit Calendar', 'Visual lifecycle timeline'],
-    ['dashboard', 'fas fa-chart-pie', 'text-orange-500', 'Dashboard', 'Analytics & trends'],
+  const TABS = [
+    ['scheduler', 'Scheduler', 'fas fa-calendar-alt'],
+    ['auditor', 'Auditor Workplace', 'fas fa-clipboard-list'],
+    ['auditee', 'Auditee Workplace', 'fas fa-user-edit'],
+    ['reports', 'Reports', 'fas fa-file-contract'],
+    ['calendar', 'Calendar', 'fas fa-calendar-days'],
+    ['dashboard', 'Dashboard', 'fas fa-chart-pie'],
   ]
+  const active = TABS.some(([k]) => k === view) ? view : 'scheduler'
 
   return (
     <div className="animate-fade-in">
-      <div className="mb-8">
-        <h1 className="text-2xl font-extrabold tracking-tight text-ink-800"><i className="fas fa-clipboard-check mr-2 text-brand-500" /> Internal Audit Hub</h1>
+      <div className="mb-5 print:hidden">
+        <h1 className="text-2xl font-extrabold tracking-tight text-ink-800"><i className="fas fa-clipboard-check mr-2 text-brand-500" /> Internal Audit</h1>
         <p className="mt-1 text-sm text-slate-500">ISO 45001 audit lifecycle — plan, execute, correct, verify and report.</p>
       </div>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {modules.map(([key, icon, color, title, desc]) => (
-          <div key={key} onClick={() => setView(key)} className={`${panel} group flex h-52 cursor-pointer flex-col items-center justify-center p-6 text-center transition hover:-translate-y-1 hover:shadow-md`}>
-            <div className={`mb-5 text-5xl ${color} transition group-hover:scale-110`}><i className={icon} /></div>
-            <h3 className="mb-1 text-xl font-bold text-ink-800">{title}</h3>
-            <p className="px-4 text-xs text-slate-400">{desc}</p>
-          </div>
+
+      <div className="mb-6 flex flex-wrap gap-1 border-b border-slate-200 print:hidden">
+        {TABS.map(([key, label, icon]) => (
+          <button
+            key={key}
+            onClick={() => setView(key)}
+            className={`-mb-px flex items-center gap-2 rounded-t-xl border-b-2 px-4 py-2.5 text-sm font-bold transition ${
+              active === key
+                ? 'border-brand-500 text-brand-600'
+                : 'border-transparent text-slate-500 hover:text-ink-800'
+            }`}
+          >
+            <i className={icon} />
+            <span className="hidden sm:inline">{label}</span>
+          </button>
         ))}
+      </div>
+
+      <div>
+        {active === 'scheduler' && <AuditScheduler {...shared} />}
+        {active === 'auditor' && <AuditorWorkplace {...shared} />}
+        {active === 'auditee' && <AuditeeWorkplace {...shared} />}
+        {active === 'reports' && <AuditReports {...shared} />}
+        {active === 'calendar' && <AuditCalendar {...shared} />}
+        {active === 'dashboard' && <AuditDashboard {...shared} />}
       </div>
     </div>
   )
