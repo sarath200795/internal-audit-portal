@@ -278,7 +278,7 @@ export default function HelpAssistant() {
   return (
     <>
       {open && (
-        <div className="assist-panel fixed bottom-28 right-4 z-50 flex w-[330px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl print:hidden">
+        <div className="assist-panel fixed bottom-24 right-4 z-50 flex max-h-[calc(100dvh-7rem)] w-[330px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl print:hidden">
           {/* header */}
           <div className="flex items-center justify-between bg-auth-panel px-4 py-3">
             <div className="flex items-center gap-2.5">
@@ -296,7 +296,7 @@ export default function HelpAssistant() {
           </div>
 
           {/* messages */}
-          <div ref={scrollRef} className="max-h-[320px] min-h-[180px] space-y-2.5 overflow-y-auto bg-slate-50/60 px-3 py-3">
+          <div ref={scrollRef} className="min-h-0 flex-1 space-y-2.5 overflow-y-auto bg-slate-50/60 px-3 py-3">
             {messages.map((m, i) => (
               <div key={i} className={m.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
                 <p className={`max-w-[85%] whitespace-pre-line rounded-2xl px-3 py-2 text-xs leading-relaxed ${m.role === 'user' ? 'bg-brand-600 text-white' : 'bg-white text-slate-700 shadow-sm ring-1 ring-slate-100'}`}>
