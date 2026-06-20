@@ -8,67 +8,77 @@ import { subscribeAuditFindings, subscribeAuditPlans } from '../services/auditMo
  *    recoloured blue for the Internal Audit portal. ── */
 
 function Officer({ className = '' }) {
-  // Sam — voxel safety officer (red hi-vis vest), matched to the Fire Marshal mascot.
+  // Sam — safety officer matched to the Fire Marshal mascot: open red hi-vis
+  // vest with reflective straps, clipboard in one hand, red rod in the other.
   return (
     <svg viewBox="0 0 96 134" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="sam-vest" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#ef4444" />
-          <stop offset="1" stopColor="#c81e1e" />
+          <stop offset="1" stopColor="#cc2222" />
         </linearGradient>
         <linearGradient id="sam-hair" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#f7cf5b" />
-          <stop offset="1" stopColor="#e0a92e" />
+          <stop offset="1" stopColor="#dca62b" />
         </linearGradient>
       </defs>
       <ellipse cx="48" cy="127" rx="22" ry="4.2" fill="rgba(15,23,42,0.16)" />
 
-      {/* legs (swing while walking) */}
+      {/* legs (swing while walking) — slight gap */}
       <g className="sam-leg sam-leg-l">
-        <rect x="39" y="95" width="9" height="27" rx="2" fill="#1e2a4a" />
-        <rect x="38" y="118" width="11" height="6" rx="2" fill="#0f1b33" />
+        <rect x="38" y="95" width="9" height="27" rx="2" fill="#1e2a4a" />
+        <rect x="37" y="118" width="11" height="6" rx="2" fill="#0f1b33" />
       </g>
       <g className="sam-leg sam-leg-r">
-        <rect x="49" y="95" width="9" height="27" rx="2" fill="#1e2a4a" />
-        <rect x="48" y="118" width="11" height="6" rx="2" fill="#0f1b33" />
+        <rect x="50" y="95" width="9" height="27" rx="2" fill="#1e2a4a" />
+        <rect x="49" y="118" width="11" height="6" rx="2" fill="#0f1b33" />
       </g>
 
-      {/* arms (static, at sides) */}
-      <rect x="25" y="60" width="8" height="25" rx="3" fill="url(#sam-vest)" />
-      <rect x="25" y="82" width="8" height="7" rx="2.5" fill="#f0c89c" />
-      <rect x="63" y="60" width="8" height="25" rx="3" fill="url(#sam-vest)" />
-      <rect x="63" y="82" width="8" height="7" rx="2.5" fill="#f0c89c" />
+      {/* red rod held in the right hand */}
+      <rect x="66.5" y="66" width="3.8" height="52" rx="1.9" fill="#e23b3b" />
+      <rect x="65.6" y="66" width="5.6" height="3" rx="1.5" fill="#b91c1c" />
 
-      {/* torso / undershirt */}
-      <rect x="32" y="58" width="32" height="41" rx="5" fill="#16233f" />
-      {/* red hi-vis vest */}
-      <rect x="33" y="58" width="30" height="37" rx="3" fill="url(#sam-vest)" />
-      <rect x="38" y="56" width="20" height="8" rx="3" fill="url(#sam-vest)" />
-      <rect x="58" y="58" width="5" height="37" rx="2.5" fill="rgba(15,23,42,0.14)" />
-      {/* vertical reflective stripes */}
-      <rect x="40" y="62" width="3.6" height="31" rx="1" fill="#eef2f7" opacity="0.95" />
-      <rect x="52.4" y="62" width="3.6" height="31" rx="1" fill="#eef2f7" opacity="0.95" />
+      {/* arms (dark sleeves) + skin hands */}
+      <rect x="24" y="60" width="8" height="22" rx="3" fill="#16233f" />
+      <rect x="24" y="80" width="8" height="7" rx="2.5" fill="#f0c89c" />
+      <rect x="64" y="60" width="8" height="22" rx="3" fill="#16233f" />
+      <rect x="64" y="80" width="8" height="7" rx="2.5" fill="#f0c89c" />
 
-      {/* clipboard in left hand */}
-      <rect x="14" y="66" width="15" height="19" rx="2" fill="#fff" stroke="#cbd5e1" strokeWidth="1.2" />
-      <rect x="18.5" y="64" width="6" height="3.4" rx="1.5" fill="#94a3b8" />
-      <rect x="16.5" y="71" width="10" height="1.8" rx="0.9" fill="#cbd5e1" />
-      <rect x="16.5" y="75" width="10" height="1.8" rx="0.9" fill="#cbd5e1" />
-      <rect x="16.5" y="79" width="7" height="1.8" rx="0.9" fill="#dc2626" />
+      {/* dark shirt (shows through the open vest) */}
+      <rect x="32" y="57" width="32" height="42" rx="5" fill="#16233f" />
+
+      {/* open red vest: two panels + shoulder straps */}
+      <rect x="36" y="55" width="7" height="8" rx="2" fill="url(#sam-vest)" />
+      <rect x="53" y="55" width="7" height="8" rx="2" fill="url(#sam-vest)" />
+      <rect x="32.5" y="58" width="12.5" height="37" rx="2.5" fill="url(#sam-vest)" />
+      <rect x="51" y="58" width="12.5" height="37" rx="2.5" fill="url(#sam-vest)" />
+      {/* reflective stripe on each panel */}
+      <rect x="37.5" y="61" width="3.4" height="31" rx="1" fill="#e8eef0" opacity="0.95" />
+      <rect x="55.1" y="61" width="3.4" height="31" rx="1" fill="#e8eef0" opacity="0.95" />
+
+      {/* clipboard in the left hand */}
+      <rect x="13" y="66" width="15" height="19" rx="2" fill="#fff" stroke="#cbd5e1" strokeWidth="1.2" />
+      <rect x="17.5" y="64" width="6" height="3.4" rx="1.5" fill="#94a3b8" />
+      <rect x="15.5" y="71" width="10" height="1.8" rx="0.9" fill="#cbd5e1" />
+      <rect x="15.5" y="75" width="10" height="1.8" rx="0.9" fill="#cbd5e1" />
+      <rect x="15.5" y="79" width="7" height="1.8" rx="0.9" fill="#dc2626" />
 
       {/* head */}
       <rect x="33" y="28" width="30" height="28" rx="7" fill="#f0c89c" />
       <rect x="30" y="39" width="4" height="8" rx="2" fill="#e6b485" />
       <rect x="62" y="39" width="4" height="8" rx="2" fill="#e6b485" />
-      {/* blonde hair */}
-      <rect x="30" y="19" width="36" height="15" rx="7" fill="url(#sam-hair)" />
-      <rect x="33" y="29" width="30" height="5" rx="2" fill="url(#sam-hair)" />
-      <rect x="30" y="27" width="5" height="10" rx="2" fill="url(#sam-hair)" />
-      <rect x="61" y="27" width="5" height="10" rx="2" fill="url(#sam-hair)" />
-      {/* face */}
-      <circle cx="42" cy="42" r="1.9" fill="#26303f" />
-      <circle cx="54" cy="42" r="1.9" fill="#26303f" />
-      <rect x="44.5" y="48.5" width="7" height="1.9" rx="0.95" fill="#b87651" />
+      {/* fuller blonde hair */}
+      <rect x="29" y="18" width="38" height="16" rx="8" fill="url(#sam-hair)" />
+      <rect x="33" y="29" width="30" height="6" rx="2" fill="url(#sam-hair)" />
+      <rect x="29" y="26" width="5" height="11" rx="2" fill="url(#sam-hair)" />
+      <rect x="62" y="26" width="5" height="11" rx="2" fill="url(#sam-hair)" />
+      {/* worried brows */}
+      <rect x="39.5" y="38.5" width="5" height="1.7" rx="0.8" fill="#9a6b2e" transform="rotate(-8 42 39)" />
+      <rect x="51.5" y="38.5" width="5" height="1.7" rx="0.8" fill="#9a6b2e" transform="rotate(8 54 39)" />
+      {/* eyes + slight frown */}
+      <circle cx="42" cy="43" r="1.9" fill="#26303f" />
+      <circle cx="54" cy="43" r="1.9" fill="#26303f" />
+      <rect x="44.5" y="49.5" width="7" height="1.9" rx="0.95" fill="#b87651" />
     </svg>
   )
 }
