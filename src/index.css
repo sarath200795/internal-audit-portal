@@ -128,3 +128,111 @@
     transform: none;
   }
 }
+
+/* ── Audit loader: a magnifier scans a document; points appear in sequence ── */
+.al-wrap {
+  @apply flex flex-col items-center justify-center gap-4;
+}
+.al-svg {
+  width: 140px;
+  height: 120px;
+  overflow: visible;
+}
+.al-label {
+  @apply text-sm font-medium text-slate-500;
+}
+.al-doc {
+  fill: #ffffff;
+  stroke: #e2e8f0;
+  stroke-width: 2.5;
+}
+.al-line {
+  fill: #e2e8f0;
+}
+.al-pt {
+  fill: #2563eb;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.al-lens {
+  fill: rgba(37, 99, 235, 0.1);
+  stroke: #2563eb;
+  stroke-width: 3.5;
+}
+.al-handle {
+  stroke: #2563eb;
+  stroke-width: 4.5;
+  stroke-linecap: round;
+}
+.al-glass {
+  animation: al-move 3.2s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+}
+.al-pt1 {
+  animation: al-pop1 3.2s ease-out infinite;
+}
+.al-pt2 {
+  animation: al-pop2 3.2s ease-out infinite;
+}
+.al-pt3 {
+  animation: al-pop3 3.2s ease-out infinite;
+}
+.al-pt4 {
+  animation: al-pop4 3.2s ease-out infinite;
+}
+
+@keyframes al-move {
+  0%, 8% {
+    transform: translate(74px, 60px);
+  }
+  25% {
+    transform: translate(120px, 78px);
+  }
+  50% {
+    transform: translate(82px, 104px);
+  }
+  75% {
+    transform: translate(124px, 120px);
+  }
+  92%, 100% {
+    transform: translate(74px, 60px);
+  }
+}
+@keyframes al-pop1 {
+  0%, 4% { opacity: 0; transform: scale(0.3); }
+  12% { opacity: 1; transform: scale(1.25); }
+  16% { transform: scale(1); }
+  88% { opacity: 1; }
+  97%, 100% { opacity: 0; }
+}
+@keyframes al-pop2 {
+  0%, 21% { opacity: 0; transform: scale(0.3); }
+  29% { opacity: 1; transform: scale(1.25); }
+  33% { transform: scale(1); }
+  88% { opacity: 1; }
+  97%, 100% { opacity: 0; }
+}
+@keyframes al-pop3 {
+  0%, 46% { opacity: 0; transform: scale(0.3); }
+  54% { opacity: 1; transform: scale(1.25); }
+  58% { transform: scale(1); }
+  88% { opacity: 1; }
+  97%, 100% { opacity: 0; }
+}
+@keyframes al-pop4 {
+  0%, 71% { opacity: 0; transform: scale(0.3); }
+  79% { opacity: 1; transform: scale(1.25); }
+  83% { transform: scale(1); }
+  88% { opacity: 1; }
+  97%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .al-glass {
+    animation: none;
+    transform: translate(100px, 90px);
+  }
+  .al-pt {
+    opacity: 1;
+  }
+}

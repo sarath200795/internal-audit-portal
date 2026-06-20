@@ -1,13 +1,14 @@
 import { Loader2 } from 'lucide-react'
+import AuditLoader from '../AuditLoader'
 
 export default function Spinner({ className = 'h-6 w-6' }) {
   return <Loader2 className={`animate-spin text-brand-500 ${className}`} />
 }
 
-export function FullPageSpinner() {
+export function FullPageSpinner({ label }) {
   return (
-    <div className="grid min-h-screen place-items-center bg-slate-100/70">
-      <Spinner className="h-8 w-8" />
+    <div className="grid min-h-screen place-items-center bg-[#eef2f8]">
+      <AuditLoader label={label} />
     </div>
   )
 }
