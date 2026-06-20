@@ -1,7 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { X, Send, Move, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { subscribeAuditFindings, subscribeAuditPlans } from '../services/auditModule'
+
+// 3D Sam is heavy (three.js) — load it lazily; the 2D SVG shows until it's ready.
+const SamCharacter3D = lazy(() => import('./SamCharacter3D'))
 
 /* ── Sam: a roaming voxel audit officer that answers questions about the
  *    live audit data. Modeled on the EHS suite's "Sam — Safety Bot",
@@ -96,6 +99,7 @@ export default function HelpAssistant() {
   const [hidden, setHidden] = useState(false)
   const [roaming, setRoaming] = useState(false)
   const [dragging, setDragging] = useState(false)
+  const [facing, setFacing] = useState(1)
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
@@ -235,13 +239,9 @@ export default function HelpAssistant() {
       st.x += st.dir * 42 * dt
       const min = 8
       const max = window.innerWidth - 80
-      if (st.x < min) { st.x = min; st.dir = 1 }
-      if (st.x > max) { st.x = max; st.dir = -1 }
-      if (charRef.current) {
-        charRef.current.style.left = `${st.x}px`
-        const inner = charRef.current.firstChild
-        if (inner) inner.style.transform = `scaleX(${st.dir > 0 ? -1 : 1})`
-      }
+      if (st.x < min) { st.x = min; st.dir = 1; setFacing(1) }
+      if (st.x > max) { st.x = max; st.dir = -1; setFacing(-1) }
+      if (charRef.current) charRef.current.style.left = `${st.x}px`
       raf = requestAnimationFrame(step)
     }
     raf = requestAnimationFrame(step)
@@ -364,8 +364,10 @@ export default function HelpAssistant() {
         className={`fixed bottom-2 z-40 touch-none select-none ${roaming ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} print:hidden`}
         aria-label="Audit assistant Sam"
       >
-        <span className={`block drop-shadow-lg ${moving ? 'sam-walking' : 'assist-char'}`}>
-          <Officer className="h-[84px] w-[64px]" />
+        <span className="block drop-shadow-xl">
+          <Suspense fallback={<Officer className="h-[96px] w-[72px]" />}>
+            <SamCharacter3D walking={moving} facing={facing} className="h-[104px] w-[80px]" />
+          </Suspense>
         </span>
         {attentionCount > 0 && (
           <span className="pointer-events-none absolute -right-1 top-1 grid min-w-[22px] place-items-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[11px] font-bold text-white ring-2 ring-white">
