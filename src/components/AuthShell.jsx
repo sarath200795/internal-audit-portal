@@ -72,7 +72,7 @@ export default function AuthShell({ children }) {
       </div>
 
       {/* Right: form panel */}
-      <div className="flex min-h-screen flex-col bg-slate-100/70">
+      <div className="flex min-h-screen flex-col bg-[#eef2f8]">
         {/* Mobile brand */}
         <div className="px-6 pt-8 lg:hidden">
           <Brand tone="dark" />

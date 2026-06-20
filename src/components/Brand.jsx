@@ -37,8 +37,8 @@ export function LogoMark({ className = 'h-6 w-6' }) {
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
       <defs>
         <linearGradient id="brandmark" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#22d3ee" />
-          <stop offset="1" stopColor="#06b6d4" />
+          <stop offset="0" stopColor="#3b82f6" />
+          <stop offset="1" stopColor="#2563eb" />
         </linearGradient>
       </defs>
       <rect x="16" y="12" width="24" height="30" rx="3" fill="#e2e8f0" />
@@ -65,7 +65,7 @@ export function LogoMark({ className = 'h-6 w-6' }) {
       <path
         d="M35 42l3.5 3.5L46 38"
         fill="none"
-        stroke="#22d3ee"
+        stroke="#60a5fa"
         strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
