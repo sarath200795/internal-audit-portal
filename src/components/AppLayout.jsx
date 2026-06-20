@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
   ClipboardCheck,
+  AlertTriangle,
+  Wrench,
   Building2,
   ShieldCheck,
   LogOut,
@@ -13,6 +15,8 @@ import Brand from './Brand'
 
 const NAV = [
   { to: '/', label: 'Internal Audit', icon: ClipboardCheck, end: true },
+  { to: '/findings', label: 'Findings', icon: AlertTriangle },
+  { to: '/capa', label: 'CAPA', icon: Wrench },
   { to: '/sites', label: 'Sites', icon: Building2 },
   { to: '/admin', label: 'Admin', icon: ShieldCheck, adminOnly: true },
 ]

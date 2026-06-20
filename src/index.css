@@ -5,6 +5,8 @@
 @layer base {
   :root {
     color-scheme: light;
+    /* Strong ease-out for UI interactions (Emil Kowalski) */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   }
 
   html,
@@ -54,5 +56,69 @@
 
   .card {
     @apply rounded-2xl border border-slate-200 bg-white shadow-card;
+  }
+
+  /* Claymorphism surface: soft, inflated, double-shadow */
+  .clay {
+    @apply rounded-3xl bg-slate-50;
+    box-shadow:
+      6px 6px 14px rgba(148, 163, 184, 0.3),
+      -6px -6px 14px rgba(255, 255, 255, 0.95);
+  }
+
+  .clay-tile {
+    @apply clay cursor-pointer;
+    /* Only animate transform/box-shadow; never `all` */
+    transition:
+      transform 200ms var(--ease-out),
+      box-shadow 200ms var(--ease-out);
+  }
+
+  /* Instant, deliberate feedback on press */
+  .clay-tile:active {
+    transform: scale(0.97);
+  }
+
+  /* Inflated icon chip */
+  .clay-chip {
+    box-shadow:
+      inset 3px 3px 6px rgba(100, 116, 139, 0.18),
+      inset -3px -3px 6px rgba(255, 255, 255, 0.95);
+  }
+}
+
+/* Hover-lift only on real pointers (avoids sticky tap-hover on touch) */
+@media (hover: hover) and (pointer: fine) {
+  .clay-tile:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      10px 12px 24px rgba(148, 163, 184, 0.38),
+      -8px -8px 18px rgba(255, 255, 255, 0.95);
+  }
+}
+
+/* Short, staggered tile entrance */
+@keyframes clay-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.clay-tile {
+  animation: clay-in 360ms var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clay-tile {
+    animation: none;
+    transition: none;
+  }
+  .clay-tile:hover,
+  .clay-tile:active {
+    transform: none;
   }
 }

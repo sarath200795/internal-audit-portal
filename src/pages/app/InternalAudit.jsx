@@ -1112,12 +1112,12 @@ export default function InternalAudit() {
   const shared = { setView, session, isGlobalOwner: isAdmin, sites, users, plans, findings }
 
   const TILES = [
-    ['scheduler', 'Scheduler', 'fas fa-calendar-alt', 'text-sky-500', 'border-t-sky-500', 'Plan annual audits & assign auditors'],
-    ['auditor', 'Auditor Workplace', 'fas fa-clipboard-list', 'text-emerald-500', 'border-t-emerald-500', 'Execute audits & record findings'],
-    ['auditee', 'Auditee Workplace', 'fas fa-user-edit', 'text-amber-500', 'border-t-amber-500', 'Submit corrections & evidence'],
-    ['reports', 'Reports', 'fas fa-file-contract', 'text-purple-500', 'border-t-purple-500', 'Verify closure & generate PDFs'],
-    ['calendar', 'Calendar', 'fas fa-calendar-days', 'text-indigo-500', 'border-t-indigo-500', 'Visual lifecycle timeline'],
-    ['dashboard', 'Dashboard', 'fas fa-chart-pie', 'text-orange-500', 'border-t-orange-500', 'Analytics & trends'],
+    ['scheduler', 'Scheduler', 'fas fa-calendar-alt', 'text-sky-600', 'bg-sky-100', 'Plan annual audits & assign auditors'],
+    ['auditor', 'Auditor Workplace', 'fas fa-clipboard-list', 'text-emerald-600', 'bg-emerald-100', 'Execute audits & record findings'],
+    ['auditee', 'Auditee Workplace', 'fas fa-user-edit', 'text-amber-600', 'bg-amber-100', 'Submit corrections & evidence'],
+    ['reports', 'Reports', 'fas fa-file-contract', 'text-purple-600', 'bg-purple-100', 'Verify closure & generate PDFs'],
+    ['calendar', 'Calendar', 'fas fa-calendar-days', 'text-indigo-600', 'bg-indigo-100', 'Visual lifecycle timeline'],
+    ['dashboard', 'Dashboard', 'fas fa-chart-pie', 'text-orange-600', 'bg-orange-100', 'Analytics & trends'],
   ]
 
   const moduleEl = {
@@ -1151,17 +1151,22 @@ export default function InternalAudit() {
         <h1 className="text-2xl font-extrabold tracking-tight text-ink-800"><i className="fas fa-clipboard-check mr-2 text-brand-500" /> Internal Audit Hub</h1>
         <p className="mt-1 text-sm text-slate-500">ISO 45001 audit lifecycle — plan, execute, correct, verify and report.</p>
       </div>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {TILES.map(([key, title, icon, color, topBorder, desc]) => (
-          <div
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {TILES.map(([key, title, icon, color, chipBg, desc], i) => (
+          <button
             key={key}
             onClick={() => setView(key)}
-            className={`${panel} group flex h-52 cursor-pointer flex-col items-center justify-center border-t-4 ${topBorder} p-6 text-center transition hover:-translate-y-1 hover:shadow-md`}
+            style={{ animationDelay: `${i * 55}ms` }}
+            className="clay-tile flex items-center gap-4 p-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/50"
           >
-            <div className={`mb-5 text-5xl ${color} transition group-hover:scale-110`}><i className={icon} /></div>
-            <h3 className="mb-1 text-xl font-bold text-ink-800">{title}</h3>
-            <p className="px-4 text-xs text-slate-400">{desc}</p>
-          </div>
+            <span className={`clay-chip grid h-14 w-14 shrink-0 place-items-center rounded-2xl text-2xl ${chipBg} ${color}`}>
+              <i className={icon} />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-base font-bold text-ink-800">{title}</span>
+              <span className="block truncate text-xs text-slate-400">{desc}</span>
+            </span>
+          </button>
         ))}
       </div>
     </div>
