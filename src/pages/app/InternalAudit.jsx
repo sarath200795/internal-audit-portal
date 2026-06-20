@@ -799,10 +799,10 @@ const AuditDashboard = ({ setView, findings }) => {
   const label = (s) => (s === 'Reported' ? 'Open Finding' : s === 'Submitted for Verification' ? 'Verif. Pending' : s)
 
   const cards = [
-    ['Open Findings', stats.open, 'border-l-rose-500', 'text-rose-600'],
-    ['In Progress', stats.inProgress, 'border-l-orange-500', 'text-orange-600'],
-    ['Closed', stats.closed, 'border-l-emerald-500', 'text-emerald-600'],
-    ['Total Audits', stats.total, 'border-l-brand-500', 'text-brand-600'],
+    ['Open Findings', stats.open, 'fas fa-triangle-exclamation', 'text-rose-600', 'bg-rose-100'],
+    ['In Progress', stats.inProgress, 'fas fa-hourglass-half', 'text-orange-600', 'bg-orange-100'],
+    ['Closed', stats.closed, 'fas fa-circle-check', 'text-emerald-600', 'bg-emerald-100'],
+    ['Total Audits', stats.total, 'fas fa-layer-group', 'text-brand-600', 'bg-brand-100'],
   ]
 
   return (
@@ -814,11 +814,16 @@ const AuditDashboard = ({ setView, findings }) => {
         </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-5 md:grid-cols-4">
-        {cards.map(([l, v, brd, txt]) => (
-          <div key={l} className={`${panel} border-l-4 ${brd} p-6`}>
-            <div className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-400">{l}</div>
-            <div className={`text-4xl font-black ${txt}`}>{v}</div>
+      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+        {cards.map(([l, v, icon, txt, chipBg], i) => (
+          <div key={l} style={{ animationDelay: `${i * 55}ms` }} className="clay-rise flex items-center gap-4 p-5">
+            <span className={`clay-chip grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-xl ${chipBg} ${txt}`}>
+              <i className={icon} />
+            </span>
+            <div className="min-w-0">
+              <div className="text-[11px] font-bold uppercase tracking-widest text-slate-400">{l}</div>
+              <div className={`text-3xl font-black ${txt}`}>{v}</div>
+            </div>
           </div>
         ))}
       </div>

@@ -112,8 +112,14 @@
   animation: clay-in 360ms var(--ease-out) both;
 }
 
+/* Non-interactive clay surface with the same staggered entrance */
+.clay-rise {
+  animation: clay-in 360ms var(--ease-out) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .clay-tile {
+  .clay-tile,
+  .clay-rise {
     animation: none;
     transition: none;
   }
