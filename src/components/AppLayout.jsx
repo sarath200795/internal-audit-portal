@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import Brand from './Brand'
+import HelpAssistant from './HelpAssistant'
 
 const NAV = [
   { to: '/', label: 'Internal Audit', icon: ClipboardCheck, end: true },
@@ -148,6 +149,9 @@ export default function AppLayout() {
           <Outlet />
         </main>
       </div>
+
+      {/* Floating help assistant */}
+      <HelpAssistant />
     </div>
   )
 }

@@ -236,3 +236,37 @@
     opacity: 1;
   }
 }
+
+/* ── Floating help assistant (voxel-style audit officer) ── */
+.assist-char {
+  animation: assist-bob 3s ease-in-out infinite;
+}
+.assist-arm {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: assist-wave 4.5s ease-in-out infinite;
+}
+.assist-panel {
+  transform-origin: bottom right;
+  animation: assist-in 220ms var(--ease-out) both;
+}
+@keyframes assist-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes assist-wave {
+  0%, 86%, 100% { transform: rotate(0deg); }
+  90% { transform: rotate(-22deg); }
+  94% { transform: rotate(6deg); }
+}
+@keyframes assist-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .assist-char,
+  .assist-arm,
+  .assist-panel {
+    animation: none;
+  }
+}
