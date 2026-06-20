@@ -62,8 +62,8 @@
   .clay {
     @apply rounded-3xl bg-slate-50;
     box-shadow:
-      6px 6px 14px rgba(148, 163, 184, 0.3),
-      -6px -6px 14px rgba(255, 255, 255, 0.95);
+      4px 4px 12px rgba(148, 163, 184, 0.16),
+      -4px -4px 12px rgba(255, 255, 255, 0.85);
   }
 
   .clay-tile {
@@ -82,18 +82,18 @@
   /* Inflated icon chip */
   .clay-chip {
     box-shadow:
-      inset 3px 3px 6px rgba(100, 116, 139, 0.18),
-      inset -3px -3px 6px rgba(255, 255, 255, 0.95);
+      inset 2px 2px 5px rgba(100, 116, 139, 0.1),
+      inset -2px -2px 5px rgba(255, 255, 255, 0.85);
   }
 }
 
 /* Hover-lift only on real pointers (avoids sticky tap-hover on touch) */
 @media (hover: hover) and (pointer: fine) {
   .clay-tile:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     box-shadow:
-      10px 12px 24px rgba(148, 163, 184, 0.38),
-      -8px -8px 18px rgba(255, 255, 255, 0.95);
+      6px 9px 20px rgba(148, 163, 184, 0.2),
+      -5px -5px 14px rgba(255, 255, 255, 0.9);
   }
 }
 
