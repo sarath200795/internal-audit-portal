@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { X, Send, Move, EyeOff, ArrowRight } from 'lucide-react'
+import { X, Send, Move, EyeOff, ArrowRight, Compass } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { subscribeAuditFindings, subscribeAuditPlans } from '../services/auditModule'
 
@@ -499,15 +499,23 @@ export default function HelpAssistant() {
             </button>
           </form>
 
-          {/* footer toggles */}
-          <div className="flex items-center justify-between border-t border-slate-100 px-3 py-2 text-[11px] font-semibold text-slate-500">
-            <button onClick={() => setRoaming((v) => !v)} className="inline-flex items-center gap-1.5 transition hover:text-brand-600">
-              <Move className="h-3.5 w-3.5" />
-              {roaming ? 'Drag Sam to pin him' : 'Let Sam roam'}
+          {/* footer */}
+          <div className="border-t border-slate-100 px-3 py-2">
+            <button
+              onClick={() => { setOpen(false); setTour({ active: true, step: 0 }) }}
+              className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand-50 px-3 py-1.5 text-xs font-bold text-brand-700 transition hover:bg-brand-100"
+            >
+              <Compass className="h-3.5 w-3.5" /> Take the guided tour
             </button>
-            <button onClick={() => { setHidden(true); setOpen(false) }} className="inline-flex items-center gap-1.5 transition hover:text-brand-600">
-              <EyeOff className="h-3.5 w-3.5" /> Hide
-            </button>
+            <div className="mt-2 flex items-center justify-between text-[11px] font-semibold text-slate-500">
+              <button onClick={() => setRoaming((v) => !v)} className="inline-flex items-center gap-1.5 transition hover:text-brand-600">
+                <Move className="h-3.5 w-3.5" />
+                {roaming ? 'Drag Sam to pin him' : 'Let Sam roam'}
+              </button>
+              <button onClick={() => { setHidden(true); setOpen(false) }} className="inline-flex items-center gap-1.5 transition hover:text-brand-600">
+                <EyeOff className="h-3.5 w-3.5" /> Hide
+              </button>
+            </div>
           </div>
         </div>
       )}
