@@ -11,6 +11,15 @@ import { auth, db, isFirebaseConfigured } from '../lib/firebase'
 
 const AuthContext = createContext(null)
 
+// Multi-role compatibility: ensure roles[] exists and role/isAdmin reflect it so
+// existing `role === 'admin'` checks keep working when users hold several roles.
+function normalizeRoles(p) {
+  const roles = Array.isArray(p.roles) && p.roles.length ? p.roles : p.role ? [p.role] : []
+  const isAdmin = p.isAdmin === true || roles.includes('admin')
+  const role = isAdmin ? 'admin' : roles.includes(p.role) ? p.role : roles[0] || p.role || 'member'
+  return { ...p, roles, isAdmin, role }
+}
+
 export function AuthProvider({ children }) {
   const [firebaseUser, setFirebaseUser] = useState(null)
   const [profile, setProfile] = useState(null) // users/{uid}
@@ -42,7 +51,7 @@ export function AuthProvider({ children }) {
     const unsub = onSnapshot(
       ref,
       (snap) => {
-        setProfile(snap.exists() ? { id: snap.id, ...snap.data() } : null)
+        setProfile(snap.exists() ? normalizeRoles({ id: snap.id, ...snap.data() }) : null)
         setLoading(false)
       },
       () => setLoading(false),
