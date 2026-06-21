@@ -1104,6 +1104,13 @@ export default function InternalAudit() {
     return () => unsubs.forEach((u) => u && u())
   }, [orgId])
 
+  // Let Sam's guided tour open a module tab (e.g. dispatch 'sam:view').
+  useEffect(() => {
+    const handler = (e) => setView(e.detail === 'home' ? 'hub' : e.detail)
+    window.addEventListener('sam:view', handler)
+    return () => window.removeEventListener('sam:view', handler)
+  }, [])
+
   const session = useMemo(
     () => ({ orgId, user: profile?.name, name: profile?.name, email: profile?.email, role: profile?.role }),
     [orgId, profile],

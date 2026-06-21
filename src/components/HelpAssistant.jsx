@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { X, Send, Move, EyeOff, ArrowRight } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { subscribeAuditFindings, subscribeAuditPlans } from '../services/auditModule'
@@ -99,6 +100,7 @@ function sample(arr, key) {
 
 export default function HelpAssistant() {
   const { profile, org, firebaseUser } = useAuth()
+  const navigate = useNavigate()
   const [records, setRecords] = useState([])
   const [plans, setPlans] = useState([])
 
@@ -257,14 +259,20 @@ export default function HelpAssistant() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Each step opens the relevant tab/page (route + module view), then Sam walks
+  // to it and explains the detail — like the Fire Marshal / Incident IRA tours.
   const STEPS = [
-    { sel: null, title: `Hi ${firstName}! 👋`, body: "I'm Sam, your guide. Let me show you around — it only takes 20 seconds." },
-    { sel: '[data-tour="scheduler"]', title: 'Step 1 · Schedule', body: 'Plan an audit here and assign an auditor and an auditee.' },
-    { sel: '[data-tour="auditor"]', title: 'Step 2 · Audit', body: 'Auditors open this workplace to run the audit and raise findings.' },
-    { sel: '[data-tour="auditee"]', title: 'Step 3 · Correct', body: 'Auditees respond to each finding with a corrective action (CAPA).' },
-    { sel: 'a[href="/findings"]', title: 'Findings register', body: 'Every finding is tracked here, all the way to closure.' },
-    { sel: 'a[href="/capa"]', title: 'CAPA register', body: 'And every corrective action lives here.' },
-    { sel: null, title: "You're all set! 🎉", body: 'Click me anytime you need a hand. Happy auditing!' },
+    { route: '/', view: 'hub', sel: null, title: `Hi ${firstName}! 👋`, body: "I'm Sam — let me open each part of the portal and show you what it does." },
+    { route: '/', view: 'scheduler', sel: '[data-tour="stage"]', title: 'Scheduler', body: 'Plan an audit: pick a site, set the dates, assign a lead auditor & team, and build the execution matrix.' },
+    { route: '/', view: 'auditor', sel: '[data-tour="stage"]', title: 'Auditor Workplace', body: 'Auditors find their assigned audits here, work the clause checklist and raise findings.' },
+    { route: '/', view: 'auditee', sel: '[data-tour="stage"]', title: 'Auditee Workplace', body: 'Auditees reply to each finding with a root cause and a corrective action (CAPA).' },
+    { route: '/', view: 'reports', sel: '[data-tour="stage"]', title: 'Reports', body: 'Verify closure and generate printable PDF audit reports and schedules.' },
+    { route: '/', view: 'calendar', sel: '[data-tour="stage"]', title: 'Calendar', body: 'A visual timeline of scheduled, executed and closed audits.' },
+    { route: '/', view: 'dashboard', sel: '[data-tour="stage"]', title: 'Dashboard', body: 'Live KPIs — open findings, overdue CAPAs and closure rate at a glance.' },
+    { route: '/findings', view: null, sel: '[data-tour="stage"]', title: 'Findings register', body: 'Every finding raised across audits is tracked here, all the way to closure.' },
+    { route: '/capa', view: null, sel: '[data-tour="stage"]', title: 'CAPA register', body: 'And every corrective action lives here, with its owner and due date.' },
+    { route: '/sites', view: null, sel: '[data-tour="stage"]', title: 'Sites', body: 'Manage the locations your audits run against.' },
+    { route: '/', view: 'hub', sel: null, title: "You're all set! 🎉", body: 'Click me anytime for help or a quick summary. Happy auditing!' },
   ]
 
   // start the tour once, on first login (per user, per browser)
@@ -293,65 +301,81 @@ export default function HelpAssistant() {
     else setTour((t) => ({ active: true, step: t.step + 1 }))
   }
 
-  // walk Sam to the current step's target, then show the tip bubble
+  // Open the step's tab/page, then walk Sam to it and show the tip bubble.
   useEffect(() => {
     if (!tour.active) return undefined
     const def = STEPS[tour.step]
-    let rect = null
-    if (def.sel) {
-      const el = document.querySelector(def.sel)
-      if (el) {
-        el.scrollIntoView({ block: 'nearest' })
-        rect = el.getBoundingClientRect()
-      }
-    }
-    setTourTarget(rect ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height } : null)
-    let ax
-    let ay
-    if (rect) {
-      if (rect.left < window.innerWidth * 0.45) {
-        ax = rect.right + 18
-        ay = rect.top + rect.height / 2 - 42
-      } else {
-        ax = rect.left + rect.width / 2 - 32
-        ay = rect.bottom + 14
-      }
-    } else {
-      ax = window.innerWidth / 2 - 32
-      ay = window.innerHeight / 2
-    }
-    ax = Math.max(8, Math.min(window.innerWidth - 80, ax))
-    ay = Math.max(8, Math.min(window.innerHeight - 100, ay))
+    const needNav = def.route && window.location.pathname !== def.route
+    if (needNav) navigate(def.route)
+
     setBubbleAt(null)
+    setTourTarget(null)
     setTourWalk(true)
     const inner = charRef.current?.firstChild
     if (inner) inner.style.transform = ''
+
     let raf = 0
-    let last = 0
-    const stepFn = (t) => {
-      if (!last) last = t
-      const dt = Math.min(0.05, (t - last) / 1000)
-      last = t
-      const p = roam.current
-      const dx = ax - p.x
-      const dy = ay - p.y
-      const d = Math.hypot(dx, dy)
-      if (d < 2) {
-        p.x = ax
-        p.y = ay
-        apply()
-        setTourWalk(false)
-        setBubbleAt({ x: ax, y: ay })
-        return
-      }
-      const mv = Math.min(460 * dt, d)
-      p.x += (dx / d) * mv
-      p.y += (dy / d) * mv
-      apply()
-      raf = requestAnimationFrame(stepFn)
+    let dv = 0
+    // switch the Internal Audit module tab (after any route change settles)
+    if (def.view) {
+      dv = window.setTimeout(
+        () => window.dispatchEvent(new CustomEvent('sam:view', { detail: def.view })),
+        needNav ? 280 : 30,
+      )
     }
-    raf = requestAnimationFrame(stepFn)
-    return () => cancelAnimationFrame(raf)
+
+    const measure = window.setTimeout(() => {
+      let rect = null
+      if (def.sel) {
+        const el = document.querySelector(def.sel)
+        if (el) rect = el.getBoundingClientRect()
+      }
+      setTourTarget(rect ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height } : null)
+
+      let ax
+      let ay
+      if (rect && rect.width < 340) {
+        if (rect.left < window.innerWidth * 0.45) { ax = rect.right + 18; ay = rect.top + rect.height / 2 - 42 }
+        else { ax = rect.left + rect.width / 2 - 32; ay = rect.bottom + 14 }
+      } else if (rect) {
+        ax = rect.left + rect.width * 0.5 - 32
+        ay = Math.min(rect.bottom - 100, window.innerHeight - 112)
+      } else {
+        ax = window.innerWidth / 2 - 32
+        ay = window.innerHeight / 2
+      }
+      ax = Math.max(8, Math.min(window.innerWidth - 80, ax))
+      ay = Math.max(8, Math.min(window.innerHeight - 100, ay))
+
+      let last = 0
+      const stepFn = (t) => {
+        if (!last) last = t
+        const dt = Math.min(0.05, (t - last) / 1000)
+        last = t
+        const p = roam.current
+        const dx = ax - p.x
+        const dy = ay - p.y
+        const d = Math.hypot(dx, dy)
+        if (d < 2) {
+          p.x = ax; p.y = ay; apply()
+          setTourWalk(false)
+          setBubbleAt({ x: ax, y: ay })
+          return
+        }
+        const mv = Math.min(320 * dt, d)
+        p.x += (dx / d) * mv
+        p.y += (dy / d) * mv
+        apply()
+        raf = requestAnimationFrame(stepFn)
+      }
+      raf = requestAnimationFrame(stepFn)
+    }, needNav ? 540 : def.view ? 400 : 120)
+
+    return () => {
+      clearTimeout(dv)
+      clearTimeout(measure)
+      cancelAnimationFrame(raf)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tour.active, tour.step])
 

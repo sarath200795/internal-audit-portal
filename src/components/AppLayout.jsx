@@ -145,7 +145,7 @@ export default function AppLayout() {
           </button>
         </header>
 
-        <main className="flex-1 overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <main data-tour="stage" className="flex-1 overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           <Outlet />
         </main>
       </div>
