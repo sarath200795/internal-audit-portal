@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { X, Send, Move, EyeOff } from 'lucide-react'
+import { X, Send, Move, EyeOff, ArrowRight } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { subscribeAuditFindings, subscribeAuditPlans } from '../services/auditModule'
 
@@ -98,7 +98,7 @@ function sample(arr, key) {
 }
 
 export default function HelpAssistant() {
-  const { profile, org } = useAuth()
+  const { profile, org, firebaseUser } = useAuth()
   const [records, setRecords] = useState([])
   const [plans, setPlans] = useState([])
 
@@ -110,10 +110,20 @@ export default function HelpAssistant() {
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
 
+  // first-login guided tour
+  const [tour, setTour] = useState({ active: false, step: 0 })
+  const [tourTarget, setTourTarget] = useState(null)
+  const [tourWalk, setTourWalk] = useState(false)
+  const [bubbleAt, setBubbleAt] = useState(null)
+
   const charRef = useRef(null)
   const scrollRef = useRef(null)
-  const drag = useRef({ startX: 0, offset: 0, moved: false })
-  const roam = useRef({ x: 0, dir: -1 })
+  const drag = useRef({ startX: 0, offsetX: 0, offsetY: 0, moved: false })
+  const roam = useRef({
+    x: typeof window !== 'undefined' ? window.innerWidth - 88 : 0,
+    y: typeof window !== 'undefined' ? window.innerHeight - 100 : 0,
+    dir: -1,
+  })
 
   useEffect(() => {
     if (!org?.id) return undefined
@@ -225,11 +235,125 @@ export default function HelpAssistant() {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [messages, typing, open])
 
-  // initial position (bottom-right)
-  useEffect(() => {
+  const apply = () => {
+    const el = charRef.current
+    if (el) {
+      el.style.left = `${roam.current.x}px`
+      el.style.top = `${roam.current.y}px`
+    }
+  }
+
+  const dock = () => {
     roam.current.x = window.innerWidth - 88
-    if (charRef.current) charRef.current.style.left = `${roam.current.x}px`
+    roam.current.y = window.innerHeight - 100
+    apply()
+    const inner = charRef.current?.firstChild
+    if (inner) inner.style.transform = ''
+  }
+
+  // initial dock (bottom-right)
+  useEffect(() => {
+    dock()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const STEPS = [
+    { sel: null, title: `Hi ${firstName}! 👋`, body: "I'm Sam, your guide. Let me show you around — it only takes 20 seconds." },
+    { sel: '[data-tour="scheduler"]', title: 'Step 1 · Schedule', body: 'Plan an audit here and assign an auditor and an auditee.' },
+    { sel: '[data-tour="auditor"]', title: 'Step 2 · Audit', body: 'Auditors open this workplace to run the audit and raise findings.' },
+    { sel: '[data-tour="auditee"]', title: 'Step 3 · Correct', body: 'Auditees respond to each finding with a corrective action (CAPA).' },
+    { sel: 'a[href="/findings"]', title: 'Findings register', body: 'Every finding is tracked here, all the way to closure.' },
+    { sel: 'a[href="/capa"]', title: 'CAPA register', body: 'And every corrective action lives here.' },
+    { sel: null, title: "You're all set! 🎉", body: 'Click me anytime you need a hand. Happy auditing!' },
+  ]
+
+  // start the tour once, on first login (per user, per browser)
+  useEffect(() => {
+    if (!firebaseUser?.uid || !org?.id) return undefined
+    const key = `sam_tour_${firebaseUser.uid}`
+    if (localStorage.getItem(key)) return undefined
+    const t = setTimeout(() => setTour({ active: true, step: 0 }), 1400)
+    return () => clearTimeout(t)
+  }, [firebaseUser?.uid, org?.id])
+
+  const endTour = () => {
+    try {
+      if (firebaseUser?.uid) localStorage.setItem(`sam_tour_${firebaseUser.uid}`, '1')
+    } catch {
+      /* ignore */
+    }
+    setTour({ active: false, step: 0 })
+    setTourTarget(null)
+    setTourWalk(false)
+    setBubbleAt(null)
+    dock()
+  }
+  const nextStep = () => {
+    if (tour.step >= STEPS.length - 1) endTour()
+    else setTour((t) => ({ active: true, step: t.step + 1 }))
+  }
+
+  // walk Sam to the current step's target, then show the tip bubble
+  useEffect(() => {
+    if (!tour.active) return undefined
+    const def = STEPS[tour.step]
+    let rect = null
+    if (def.sel) {
+      const el = document.querySelector(def.sel)
+      if (el) {
+        el.scrollIntoView({ block: 'nearest' })
+        rect = el.getBoundingClientRect()
+      }
+    }
+    setTourTarget(rect ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height } : null)
+    let ax
+    let ay
+    if (rect) {
+      if (rect.left < window.innerWidth * 0.45) {
+        ax = rect.right + 18
+        ay = rect.top + rect.height / 2 - 42
+      } else {
+        ax = rect.left + rect.width / 2 - 32
+        ay = rect.bottom + 14
+      }
+    } else {
+      ax = window.innerWidth / 2 - 32
+      ay = window.innerHeight / 2
+    }
+    ax = Math.max(8, Math.min(window.innerWidth - 80, ax))
+    ay = Math.max(8, Math.min(window.innerHeight - 100, ay))
+    setBubbleAt(null)
+    setTourWalk(true)
+    const inner = charRef.current?.firstChild
+    if (inner) inner.style.transform = ''
+    let raf = 0
+    let last = 0
+    const stepFn = (t) => {
+      if (!last) last = t
+      const dt = Math.min(0.05, (t - last) / 1000)
+      last = t
+      const p = roam.current
+      const dx = ax - p.x
+      const dy = ay - p.y
+      const d = Math.hypot(dx, dy)
+      if (d < 2) {
+        p.x = ax
+        p.y = ay
+        apply()
+        setTourWalk(false)
+        setBubbleAt({ x: ax, y: ay })
+        return
+      }
+      const mv = Math.min(460 * dt, d)
+      p.x += (dx / d) * mv
+      p.y += (dy / d) * mv
+      apply()
+      raf = requestAnimationFrame(stepFn)
+    }
+    raf = requestAnimationFrame(stepFn)
+    return () => cancelAnimationFrame(raf)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tour.active, tour.step])
 
   // roam loop — walk left/right along the bottom when roaming and panel closed
   const moving = roaming && !open && !dragging && !hidden
@@ -261,16 +385,16 @@ export default function HelpAssistant() {
   // drag to reposition / pin
   const onPointerDown = (e) => {
     const rect = charRef.current.getBoundingClientRect()
-    drag.current = { startX: e.clientX, offset: e.clientX - rect.left, moved: false }
+    drag.current = { startX: e.clientX, offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top, moved: false }
     setDragging(true)
     charRef.current.setPointerCapture?.(e.pointerId)
   }
   const onPointerMove = (e) => {
     if (!dragging) return
     if (Math.abs(e.clientX - drag.current.startX) > 4) drag.current.moved = true
-    const x = Math.max(8, Math.min(window.innerWidth - 80, e.clientX - drag.current.offset))
-    roam.current.x = x
-    if (charRef.current) charRef.current.style.left = `${x}px`
+    roam.current.x = Math.max(8, Math.min(window.innerWidth - 80, e.clientX - drag.current.offsetX))
+    roam.current.y = Math.max(8, Math.min(window.innerHeight - 96, e.clientY - drag.current.offsetY))
+    apply()
   }
   const onPointerUp = () => {
     if (!dragging) return
@@ -364,20 +488,68 @@ export default function HelpAssistant() {
         </div>
       )}
 
+      {/* guided tour: spotlight + tip bubble */}
+      {tour.active && (
+        <>
+          {tourTarget ? (
+            <div
+              className="pointer-events-none fixed z-[55] rounded-xl ring-2 ring-brand-400 transition-all duration-200"
+              style={{
+                left: tourTarget.left - 6,
+                top: tourTarget.top - 6,
+                width: tourTarget.width + 12,
+                height: tourTarget.height + 12,
+                boxShadow: '0 0 0 9999px rgba(15,23,42,0.45)',
+              }}
+            />
+          ) : (
+            <div className="pointer-events-none fixed inset-0 z-[55] bg-ink-900/40" />
+          )}
+          {bubbleAt && (
+            <div
+              className="assist-panel fixed z-[60] w-[250px] max-w-[calc(100vw-2rem)] rounded-2xl bg-white p-4 shadow-2xl"
+              style={{
+                left: Math.max(8, Math.min(window.innerWidth - 258, bubbleAt.x - 92)),
+                top: bubbleAt.y < 170 ? bubbleAt.y + 96 : bubbleAt.y - 134,
+              }}
+            >
+              <p className="text-sm font-bold text-ink-800">{STEPS[tour.step].title}</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-500">{STEPS[tour.step].body}</p>
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                  {tour.step + 1} / {STEPS.length}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button onClick={endTour} className="text-[11px] font-semibold text-slate-400 transition hover:text-slate-600">
+                    Skip
+                  </button>
+                  <button
+                    onClick={nextStep}
+                    className="inline-flex items-center gap-1 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-bold text-white transition active:scale-95 hover:bg-brand-700"
+                  >
+                    {tour.step >= STEPS.length - 1 ? 'Done' : 'Next'} <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
       {/* the character */}
       <button
         ref={charRef}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        style={{ left: 0 }}
-        className={`fixed bottom-2 z-40 touch-none select-none ${roaming ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} print:hidden`}
+        onPointerDown={tour.active ? undefined : onPointerDown}
+        onPointerMove={tour.active ? undefined : onPointerMove}
+        onPointerUp={tour.active ? undefined : onPointerUp}
+        style={{ left: `${roam.current.x}px`, top: `${roam.current.y}px`, pointerEvents: tour.active ? 'none' : 'auto' }}
+        className={`fixed touch-none select-none ${tour.active ? 'z-[60]' : 'z-40'} ${roaming ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} print:hidden`}
         aria-label="Audit assistant Sam"
       >
-        <span className={`block drop-shadow-lg ${moving ? 'sam-walking' : 'assist-char'}`}>
+        <span className={`block drop-shadow-lg ${moving || tourWalk ? 'sam-walking' : 'assist-char'}`}>
           <Officer className="h-[84px] w-[64px]" />
         </span>
-        {attentionCount > 0 && (
+        {attentionCount > 0 && !tour.active && (
           <span className="pointer-events-none absolute -right-1 top-1 grid min-w-[22px] place-items-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[11px] font-bold text-white ring-2 ring-white">
             {attentionCount > 99 ? '99+' : attentionCount}
           </span>

@@ -1160,6 +1160,7 @@ export default function InternalAudit() {
         {TILES.map(([key, title, icon, color, chipBg, desc], i) => (
           <button
             key={key}
+            data-tour={key}
             onClick={() => setView(key)}
             style={{ animationDelay: `${i * 55}ms` }}
             className="clay-tile flex items-center gap-4 p-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/50"
